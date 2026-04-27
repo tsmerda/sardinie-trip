@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sand: #f5e6c8;
+  --color-sand-light: #faf3e6;
+  --color-sand-dark: #d4a855;
+  --color-turquoise: #0fb5ba;
+  --color-turquoise-light: #e0f7f8;
+  --color-turquoise-dark: #0a8a8e;
+  --color-sea: #1e6091;
+  --color-sea-light: #d6eaf8;
+  --color-sea-dark: #154360;
+  --color-sun: #f5a623;
+  --color-sun-light: #fef3cd;
+  --color-coral: #e74c3c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: linear-gradient(180deg, #f0f9fa 0%, #faf8f3 50%, #f0f9fa 100%);
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Leaflet z-index fix */
+.leaflet-container {
+  z-index: 1;
+}
+
+/* Horizontal scrollbar styling for timeline */
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #0fb5ba40;
+  border-radius: 3px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #0fb5ba80;
+}
+
+/* Safe area for mobile bottom */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
