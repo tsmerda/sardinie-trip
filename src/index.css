@@ -1,18 +1,32 @@
 @import "tailwindcss";
 
 @theme {
-  --color-sand: #f5e6c8;
-  --color-sand-light: #faf3e6;
-  --color-sand-dark: #d4a855;
+  /* ── Sea / primary ───────────────────────────── */
+  --color-sea: #1e6091;
+  --color-sea-light: #d6eaf8;
+  --color-sea-dark: #0e3a5c;
+  --color-sea-deep: #082740;
+
+  /* ── Turquoise / accent ──────────────────────── */
   --color-turquoise: #0fb5ba;
   --color-turquoise-light: #e0f7f8;
   --color-turquoise-dark: #0a8a8e;
-  --color-sea: #1e6091;
-  --color-sea-light: #d6eaf8;
-  --color-sea-dark: #154360;
+
+  /* ── Sand / warm ─────────────────────────────── */
+  --color-sand: #f5e6c8;
+  --color-sand-light: #faf3e6;
+  --color-sand-dark: #d4a855;
+
+  /* ── Sun / highlight ─────────────────────────── */
   --color-sun: #f5a623;
   --color-sun-light: #fef3cd;
-  --color-coral: #e74c3c;
+
+  --color-coral: #ff6b5e;
+
+  /* ── App radii / shadows ─────────────────────── */
+  --radius-app: 1.25rem;
+  --shadow-soft: 0 4px 20px -4px rgb(14 58 92 / 0.12);
+  --shadow-float: 0 12px 40px -8px rgb(14 58 92 / 0.22);
 }
 
 * {
@@ -28,32 +42,197 @@ body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: linear-gradient(180deg, #f0f9fa 0%, #faf8f3 50%, #f0f9fa 100%);
+  text-rendering: optimizeLegibility;
+  color: #1a2e3b;
+  background:
+    radial-gradient(120% 80% at 50% -10%, #e6f6f7 0%, transparent 55%),
+    linear-gradient(180deg, #f3fafb 0%, #faf8f3 45%, #eef8f9 100%);
+  background-attachment: fixed;
   min-height: 100vh;
   min-height: 100dvh;
 }
 
-/* Leaflet z-index fix */
-.leaflet-container {
-  z-index: 1;
+/* Prevent horizontal scroll on mobile */
+body, #root {
+  overflow-x: hidden;
 }
 
-/* Horizontal scrollbar styling for timeline */
-.scrollbar-thin::-webkit-scrollbar {
-  height: 6px;
-}
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #0fb5ba40;
-  border-radius: 3px;
-}
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #0fb5ba80;
-}
-
-/* Safe area for mobile bottom */
+/* ── Safe areas (notch / home indicator) ──────── */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.h-safe-bottom {
+  height: env(safe-area-inset-bottom, 0px);
+}
+
+/* ── Glass surfaces ───────────────────────────── */
+.glass {
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+}
+.glass-dark {
+  background: rgb(8 39 64 / 0.55);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+}
+
+/* ── Premium card ─────────────────────────────── */
+.card {
+  background: #fff;
+  border-radius: var(--radius-app);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgb(14 58 92 / 0.06);
+}
+
+/* ── Hide scrollbar but keep scroll ──────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.scrollbar-thin::-webkit-scrollbar { height: 6px; width: 6px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #0fb5ba40; border-radius: 3px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #0fb5ba80; }
+
+/* ── Tap highlight off for app feel ──────────── */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ═══════════════════════════════════════════════
+   LEAFLET MAP — premium styling
+   ═══════════════════════════════════════════════ */
+.leaflet-container {
+  z-index: 1;
+  background: #aadaff;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Cleaner controls */
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: var(--shadow-float) !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+}
+.leaflet-control-zoom a {
+  width: 38px !important;
+  height: 38px !important;
+  line-height: 38px !important;
+  font-size: 20px !important;
+  color: #0e3a5c !important;
+  background: rgb(255 255 255 / 0.92) !important;
+  backdrop-filter: blur(8px);
+  border: none !important;
+}
+.leaflet-control-zoom a:hover {
+  background: #fff !important;
+  color: #0fb5ba !important;
+}
+.leaflet-bar a:first-child { border-bottom: 1px solid rgb(14 58 92 / 0.08) !important; }
+
+.leaflet-control-attribution {
+  background: rgb(255 255 255 / 0.75) !important;
+  backdrop-filter: blur(6px);
+  border-radius: 8px 0 0 0;
+  font-size: 10px !important;
+  padding: 2px 6px !important;
+}
+.leaflet-control-attribution a { color: #0a8a8e !important; }
+
+/* ── Custom premium markers (DivIcon) ─────────── */
+.trip-marker {
+  background: transparent !important;
+  border: none !important;
+}
+.trip-pin {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 4px 10px rgb(14 58 92 / 0.35);
+  border: 2.5px solid #fff;
+  transition: transform 0.2s ease;
+}
+.trip-pin > span {
+  transform: rotate(45deg);
+  font-size: 16px;
+  line-height: 1;
+}
+.trip-pin.inactive {
+  width: 26px;
+  height: 26px;
+  background: #94a8b6;
+  opacity: 0.85;
+  box-shadow: 0 2px 6px rgb(14 58 92 / 0.25);
+}
+.trip-pin.inactive > span { font-size: 12px; }
+.trip-pin.active {
+  background: linear-gradient(135deg, #0fb5ba, #0a8a8e);
+}
+.trip-pin.base {
+  background: linear-gradient(135deg, #f5a623, #d4a855);
+}
+.trip-pin .seq {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  transform: rotate(45deg);
+  background: #ff6b5e;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+}
+
+/* Popups */
+.leaflet-popup-content-wrapper {
+  border-radius: 16px !important;
+  box-shadow: var(--shadow-float) !important;
+  padding: 2px !important;
+}
+.leaflet-popup-content {
+  margin: 14px 16px !important;
+}
+.leaflet-popup-tip {
+  box-shadow: var(--shadow-float) !important;
+}
+
+/* Animated dashed route line */
+.route-line {
+  stroke-dasharray: 1 12;
+  stroke-linecap: round;
+  animation: route-dash 1.4s linear infinite;
+}
+@keyframes route-dash {
+  to { stroke-dashoffset: -26; }
+}
+
+/* ── Pulse for active marker ──────────────────── */
+@keyframes soft-pulse {
+  0%, 100% { box-shadow: 0 4px 10px rgb(14 58 92 / 0.35), 0 0 0 0 rgb(15 181 186 / 0.5); }
+  50% { box-shadow: 0 4px 10px rgb(14 58 92 / 0.35), 0 0 0 8px rgb(15 181 186 / 0); }
+}
+.trip-pin.active.pulse {
+  animation: soft-pulse 2.2s ease-out infinite;
+}
+
+/* ── Subtle entrance helpers ──────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }

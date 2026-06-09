@@ -45,25 +45,48 @@ function ScheduleBlock({ day }: { day: Pick<Day, 'morning' | 'afternoon' | 'even
 
 function PlacesList({ places }: { places: Day['places'] }) {
   if (places.length === 0) return null;
+  const labels = places.reduce<{ list: string[]; n: number }>(
+    (acc, place) => {
+      if (place.type === 'airport') {
+        acc.list.push('✈');
+      } else {
+        acc.list.push(String(acc.n + 1));
+        acc.n += 1;
+      }
+      return acc;
+    },
+    { list: [], n: 0 }
+  ).list;
   return (
     <div>
       <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-        <MapPin className="w-4 h-4 text-turquoise" /> Místa
+        <MapPin className="w-4 h-4 text-turquoise" /> Zastávky
       </h4>
-      <div className="flex flex-wrap gap-2">
-        {places.map((place) => (
-          <a
-            key={place.name}
-            href={getPlaceMapLink(place)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 bg-turquoise-light/50 hover:bg-turquoise-light text-turquoise-dark rounded-lg px-3 py-2 text-sm transition-colors border border-turquoise/20"
-          >
-            <span>{placeTypeEmoji[place.type] || '📍'}</span>
-            <span className="font-medium">{place.name}</span>
-            <Navigation className="w-3 h-3 opacity-50" />
-          </a>
-        ))}
+      <div className="space-y-2">
+        {places.map((place, idx) => {
+          const label = labels[idx];
+          return (
+            <a
+              key={place.name}
+              href={getPlaceMapLink(place)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-3 bg-white hover:bg-turquoise-light/30 rounded-xl px-3 py-2.5 transition-colors border border-gray-100 hover:border-turquoise/30"
+            >
+              <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-turquoise to-turquoise-dark text-white text-xs font-bold">
+                {label}
+              </span>
+              <span className="text-lg flex-shrink-0">{placeTypeEmoji[place.type] || '📍'}</span>
+              <div className="flex-1 min-w-0">
+                <span className="font-semibold text-sm text-sea-dark block truncate">{place.name}</span>
+                {place.description && (
+                  <span className="text-xs text-gray-500 block truncate">{place.description}</span>
+                )}
+              </div>
+              <Navigation className="w-4 h-4 text-gray-300 group-hover:text-turquoise transition-colors flex-shrink-0" />
+            </a>
+          );
+        })}
       </div>
     </div>
   );
@@ -168,19 +191,27 @@ export default function DayDetail({ day, selectedVariant, onSelectVariant }: Pro
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="max-w-4xl mx-auto px-4 pb-8"
+      className="max-w-4xl mx-auto px-4 pb-6"
     >
-      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+      <div className="card overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-sea-dark to-turquoise-dark p-5 md:p-6 text-white">
-          <p className="text-turquoise-light/80 text-sm">
-            Den {day.id} — {day.dayOfWeek} {day.date}
-          </p>
-          <h3 className="text-2xl md:text-3xl font-bold mt-1">{day.title}</h3>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-sm text-white/70">
-            <span className="flex items-center gap-1">
+        <div className="relative bg-gradient-to-br from-sea-deep via-sea-dark to-turquoise-dark p-5 md:p-6 text-white overflow-hidden">
+          <div className="absolute -top-8 -right-8 w-40 h-40 bg-turquoise/20 rounded-full blur-2xl" />
+          <div className="relative">
+            <p className="text-turquoise-light/80 text-xs font-semibold tracking-wide uppercase">
+              Den {day.id} — {day.dayOfWeek} {day.date}
+            </p>
+            <h3 className="text-2xl md:text-3xl font-bold mt-1">{day.title}</h3>
+            <div className="flex flex-wrap items-center gap-1.5 mt-3">
+              {day.types.map((t) => (
+                <span key={t} className="text-[11px] font-medium bg-white/15 border border-white/15 rounded-full px-2.5 py-0.5">
+                  {t}
+                </span>
+              ))}
+            </div>
+            <div className="flex items-center gap-1.5 mt-3 text-sm text-white/70">
               <Car className="w-4 h-4" /> {hasVariants ? activeVariant!.driving : day.driving}
-            </span>
+            </div>
           </div>
         </div>
 
