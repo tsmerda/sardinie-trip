@@ -3,7 +3,7 @@ import { useRef, useEffect } from 'react';
 import type { Day, DayType } from '../data/itinerary';
 
 const typeColors: Record<DayType, string> = {
-  cestování: 'bg-gray-200 text-gray-700',
+  cestování: 'bg-gray-100 text-gray-600',
   pláž: 'bg-turquoise-light text-turquoise-dark',
   poznávání: 'bg-sun-light text-yellow-800',
   město: 'bg-sea-light text-sea-dark',
@@ -31,25 +31,20 @@ interface Props {
 export default function DayTimeline({ days, selectedDay, onSelect }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Scroll active day into view on desktop
   useEffect(() => {
-    if (scrollRef.current && window.innerWidth >= 768) {
-      const activeEl = scrollRef.current.querySelector('[data-active="true"]');
-      if (activeEl) {
-        activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      }
-    }
+    const el = scrollRef.current?.querySelector('[data-active="true"]');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   }, [selectedDay]);
 
   return (
-    <section className="py-8 px-4" id="timeline">
-      <h2 className="text-2xl md:text-3xl font-bold text-sea-dark mb-6 text-center">
+    <section className="pt-5 pb-3 lg:py-8" id="timeline">
+      <h2 className="text-xl md:text-3xl font-bold text-sea-dark mb-4 px-5 lg:text-center">
         Itinerář po dnech
       </h2>
 
       <div
         ref={scrollRef}
-        className="flex flex-col md:flex-row gap-3 md:gap-2 md:overflow-x-auto md:pb-4 max-w-5xl mx-auto md:snap-x md:snap-mandatory scrollbar-thin"
+        className="flex gap-3 overflow-x-auto pb-3 px-5 lg:px-4 max-w-5xl mx-auto snap-x snap-mandatory scrollbar-thin"
       >
         {days.map((day) => {
           const active = day.id === selectedDay;
@@ -58,40 +53,36 @@ export default function DayTimeline({ days, selectedDay, onSelect }: Props) {
             <motion.button
               key={day.id}
               data-active={active}
-              whileTap={{ scale: 0.97 }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => onSelect(day.id)}
               className={`
-                flex-shrink-0 md:w-44 md:snap-center text-left rounded-xl p-3 md:p-4 border-2 transition-all cursor-pointer
+                flex-shrink-0 w-40 snap-center text-left rounded-2xl p-3.5 border-2 transition-all cursor-pointer
                 ${active
-                  ? 'border-turquoise bg-white shadow-lg shadow-turquoise/20 ring-2 ring-turquoise/30'
-                  : 'border-transparent bg-white/70 hover:bg-white hover:shadow-md'
+                  ? 'border-turquoise bg-white shadow-float ring-1 ring-turquoise/20'
+                  : 'border-transparent bg-white/70 hover:bg-white hover:shadow-soft'
                 }
               `}
             >
-              <div className="flex md:flex-col items-center md:items-start gap-3 md:gap-1.5">
+              <div className="flex items-center justify-between mb-2">
                 <div className={`
-                  flex items-center justify-center w-10 h-10 md:w-8 md:h-8 rounded-lg font-bold text-sm flex-shrink-0
-                  ${active ? 'bg-turquoise text-white' : 'bg-sea-light text-sea-dark'}
+                  flex items-center justify-center w-9 h-9 rounded-xl font-bold text-sm
+                  ${active ? 'bg-gradient-to-br from-turquoise to-turquoise-dark text-white shadow-md' : 'bg-sea-light text-sea-dark'}
                 `}>
                   {day.id}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-gray-500">{day.dayOfWeek} {day.date}</p>
-                  <p className={`font-semibold text-sm md:text-xs truncate ${active ? 'text-sea-dark' : 'text-gray-800'}`}>
-                    {day.title}
-                  </p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {day.types.map((t) => (
-                      <span key={t} className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${typeColors[t]}`}>
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                  <p className={`text-[10px] mt-1 font-medium ${diff?.color}`}>
-                    {diff?.text}
-                  </p>
-                </div>
+                <span className="text-[10px] text-gray-400 text-right leading-tight">{day.dayOfWeek}<br />{day.date}</span>
               </div>
+              <p className={`font-semibold text-sm leading-snug line-clamp-2 min-h-[2.5rem] ${active ? 'text-sea-dark' : 'text-gray-700'}`}>
+                {day.title}
+              </p>
+              <div className="flex flex-wrap gap-1 mt-2">
+                {day.types.slice(0, 2).map((t) => (
+                  <span key={t} className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${typeColors[t]}`}>
+                    {t}
+                  </span>
+                ))}
+              </div>
+              <p className={`text-[10px] mt-1.5 font-semibold ${diff?.color}`}>{diff?.text}</p>
             </motion.button>
           );
         })}

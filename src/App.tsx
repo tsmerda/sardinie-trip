@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import Hero from './components/Hero';
 import DayTimeline from './components/DayTimeline';
 import DayDetail from './components/DayDetail';
@@ -7,17 +7,21 @@ import TripMap from './components/TripMap';
 import Checklist from './components/Checklist';
 import MoodAlternatives from './components/MoodAlternatives';
 import CopyButtons from './components/CopyButtons';
+import BottomNav, { type Tab } from './components/BottomNav';
+import PracticalTips from './components/PracticalTips';
+import { useMediaQuery } from './hooks/useMediaQuery';
 import { itinerary, places } from './data/itinerary';
 import type { Place } from './data/itinerary';
 
 export default function App() {
   const [selectedDayId, setSelectedDayId] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>('plan');
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
 
   const selectedDay = itinerary.find((d) => d.id === selectedDayId) ?? itinerary[0];
   const allPlaces = useMemo(() => Object.values(places), []);
 
-  // Compute active places considering variant selection
   const activePlaces: Place[] = useMemo(() => {
     if (selectedDay.variants && selectedDay.variants.length > 0) {
       const variant = selectedDay.variants.find((v) => v.id === selectedVariant) ?? selectedDay.variants[0];
@@ -28,82 +32,145 @@ export default function App() {
 
   const handleSelectDay = useCallback((id: number) => {
     setSelectedDayId(id);
-    setSelectedVariant(null); // reset variant when switching days
+    setSelectedVariant(null);
   }, []);
 
-  return (
-    <div className="min-h-screen pb-safe">
-      <Hero />
+  const mapEl = (
+    <TripMap
+      allPlaces={allPlaces}
+      activePlaces={activePlaces}
+      selectedDay={selectedDay}
+      fullHeight
+      days={itinerary}
+      onSelectDay={handleSelectDay}
+      variants={selectedDay.variants}
+      selectedVariant={selectedVariant}
+      onSelectVariant={setSelectedVariant}
+    />
+  );
 
-      {/* Main split layout: content left, map right on desktop */}
-      <div className="max-w-[1600px] mx-auto lg:flex lg:gap-0">
-        {/* Left column — scrollable content */}
-        <div className="flex-1 min-w-0">
-          <DayTimeline days={itinerary} selectedDay={selectedDayId} onSelect={handleSelectDay} />
-
-          <AnimatePresence mode="wait">
-            <DayDetail
-              key={selectedDayId}
-              day={selectedDay}
-              selectedVariant={selectedVariant}
-              onSelectVariant={setSelectedVariant}
-            />
-          </AnimatePresence>
-
-          <CopyButtons selectedDay={selectedDay} selectedVariant={selectedVariant} />
-
-          {/* Mobile-only map (hidden on lg+) */}
-          <div className="lg:hidden">
-            <TripMap allPlaces={allPlaces} activePlaces={activePlaces} selectedDay={selectedDay} />
+  if (isDesktop) {
+    return (
+      <div className="min-h-screen">
+        <Hero />
+        <div className="max-w-[1600px] mx-auto flex gap-0">
+          <div className="flex-1 min-w-0">
+            <DayTimeline days={itinerary} selectedDay={selectedDayId} onSelect={handleSelectDay} />
+            <AnimatePresence mode="wait">
+              <DayDetail
+                key={selectedDayId}
+                day={selectedDay}
+                selectedVariant={selectedVariant}
+                onSelectVariant={setSelectedVariant}
+              />
+            </AnimatePresence>
+            <CopyButtons selectedDay={selectedDay} selectedVariant={selectedVariant} />
+            <MoodAlternatives />
+            <Checklist />
+            <PracticalTips />
           </div>
 
-          <MoodAlternatives />
-          <Checklist />
-
-          {/* Praktické tipy */}
-          <section className="py-8 px-4" id="tips">
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold text-sea-dark mb-6 text-center">
-                Praktické tipy
-              </h2>
-              <div className="grid sm:grid-cols-2 gap-4">
-                {[
-                  { title: 'Auta', text: 'Potřebujeme min. 2 auta pro 6 lidí. Rezervovat dopředu — v červenci je to žádané.' },
-                  { title: 'Parkování', text: 'U populárních pláží (Tuerredda, Nora, Cala Domestica) jezdit brzy ráno. Některé pláže mají placené parkování.' },
-                  { title: 'Hotovost', text: 'Mít hotovost — menší pláže a stánky neberou karty. Parkování taky často jen cash.' },
-                  { title: 'Voda & jídlo', text: 'Na celý den na pláži / výlet vzít hodně vody, ovoce, sendviče. Ne všude je blízko obchod.' },
-                  { title: 'Šnorchl & boty', text: 'Vzít šnorchly a boty do vody — hodně skal a krásné podmořské scenérie.' },
-                  { title: 'Slunce', text: 'Sardinie v červenci = 35°C+. Opalovací krém SPF 50, klobouk, slunečník. Na Su Nuraxi / Noru extra voda.' },
-                  { title: 'Trajekt', text: 'Trajekt Calasetta → Carloforte: ověřit časy a koupit lístky dopředu (Delcomar). Jen pokud zvolíte variantu A dne 7.' },
-                  { title: 'Večeře & vstupenky', text: 'V Cagliari rezervovat večeři dopředu. Pro Noru a Su Nuraxi ověřit vstupenky / prohlídky.' },
-                ].map((tip) => (
-                  <div key={tip.title} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                    <h3 className="font-semibold text-sea-dark mb-1">{tip.title}</h3>
-                    <p className="text-sm text-gray-600 leading-relaxed">{tip.text}</p>
-                  </div>
-                ))}
-              </div>
+          <div className="w-[42%] xl:w-[40%]">
+            <div className="sticky top-0 h-screen p-4 pl-0">
+              <TripMap
+                allPlaces={allPlaces}
+                activePlaces={activePlaces}
+                selectedDay={selectedDay}
+                fullHeight
+                days={itinerary}
+                onSelectDay={handleSelectDay}
+                variants={selectedDay.variants}
+                selectedVariant={selectedVariant}
+                onSelectVariant={setSelectedVariant}
+              />
             </div>
-          </section>
-        </div>
-
-        {/* Right column — sticky map (desktop only) */}
-        <div className="hidden lg:block lg:w-[42%] xl:w-[40%]">
-          <div className="sticky top-0 h-screen p-4 pl-0">
-            <TripMap
-              allPlaces={allPlaces}
-              activePlaces={activePlaces}
-              selectedDay={selectedDay}
-              fullHeight
-            />
           </div>
         </div>
-      </div>
 
-      {/* Footer */}
-      <footer className="text-center py-8 text-sm text-gray-400 border-t border-gray-100 mt-4">
-        Sardinie 2026 — Porto Pino Trip
-      </footer>
+        <footer className="text-center py-8 text-sm text-gray-400 border-t border-gray-100 mt-4">
+          Sardinie 2026 — Porto Pino Trip
+        </footer>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen">
+      {/* ════════════════ MOBILE — native-app tabs ════════════════ */}
+      <div>
+        <AnimatePresence mode="wait">
+          {tab === 'plan' && (
+            <motion.div
+              key="plan"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="pb-28"
+            >
+              <Hero />
+              <DayTimeline days={itinerary} selectedDay={selectedDayId} onSelect={handleSelectDay} />
+              <AnimatePresence mode="wait">
+                <DayDetail
+                  key={selectedDayId}
+                  day={selectedDay}
+                  selectedVariant={selectedVariant}
+                  onSelectVariant={setSelectedVariant}
+                />
+              </AnimatePresence>
+              <CopyButtons selectedDay={selectedDay} selectedVariant={selectedVariant} />
+              <button
+                onClick={() => setTab('map')}
+                className="mx-auto mb-2 flex items-center gap-2 text-sm font-semibold text-turquoise-dark"
+              >
+                Zobrazit den na mapě →
+              </button>
+            </motion.div>
+          )}
+
+          {tab === 'map' && (
+            <motion.div
+              key="map"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="h-[calc(100dvh-5rem)] px-3 pt-3"
+            >
+              {mapEl}
+            </motion.div>
+          )}
+
+          {tab === 'list' && (
+            <motion.div
+              key="list"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="pb-28 pt-5"
+            >
+              <Checklist />
+            </motion.div>
+          )}
+
+          {tab === 'more' && (
+            <motion.div
+              key="more"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="pb-28 pt-5"
+            >
+              <MoodAlternatives />
+              <PracticalTips />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <BottomNav active={tab} onChange={setTab} />
+      </div>
     </div>
   );
 }

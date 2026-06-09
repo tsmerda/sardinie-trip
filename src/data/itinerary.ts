@@ -76,7 +76,7 @@ export const places: Record<string, Place> = {
   calasetta: { name: 'Calasetta', lat: 39.1101, lng: 8.3686, type: 'town', description: 'Rybářské městečko s přívozem na San Pietro' },
 
   // Tuerredda / Chia
-  tuerredda: { name: 'Tuerredda Beach', lat: 38.8943, lng: 8.8156, type: 'beach', description: 'Jedna z nejkrásnějších pláží Sardinie' },
+  tuerredda: { name: 'Tuerredda Beach', lat: 38.8946, lng: 8.8131, type: 'beach', description: 'Jedna z nejkrásnějších pláží Sardinie' },
   chia: { name: 'Chia', lat: 38.8977, lng: 8.8822, type: 'beach', description: 'Známá oblast s nádhernými plážemi' },
   suGiudeu: { name: 'Su Giudeu', lat: 38.8836, lng: 8.8661, type: 'beach', description: 'Pláž s malým ostrůvkem, na který se dá dojít' },
 
@@ -113,6 +113,31 @@ export const places: Record<string, Place> = {
 };
 
 const p = places;
+
+/** Naše základna — výchozí a cílový bod pro většinu okružních výletů. */
+export const BASE: Place = places.portoPino;
+
+/**
+ * Sestaví logické pořadí bodů trasy pro daný den.
+ * Okružní dny (bez letiště) začínají i končí na základně Porto Pino,
+ * takže trasa na mapě dává smysl jako reálný itinerář.
+ */
+export function buildRoute(activePlaces: Place[]): Place[] {
+  if (activePlaces.length === 0) return [];
+  const hasAirport = activePlaces.some((pl) => pl.type === 'airport');
+  // Dny s letištěm (přílet/odlet) jsou jednosměrné — neuzavírat do smyčky.
+  if (hasAirport) return activePlaces;
+
+  const first = activePlaces[0];
+  const last = activePlaces[activePlaces.length - 1];
+  const sameAsBase = (pl: Place) =>
+    Math.abs(pl.lat - BASE.lat) < 0.01 && Math.abs(pl.lng - BASE.lng) < 0.01;
+
+  const route = [...activePlaces];
+  if (!sameAsBase(first)) route.unshift(BASE);
+  if (!sameAsBase(last)) route.push(BASE);
+  return route;
+}
 
 // ─── Itinerary ───────────────────────────────────────────────────────
 
